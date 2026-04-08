@@ -1,2 +1,0 @@
-# This project is a Next.js app and does not currently require any Python packages.
-# Keep this file if you want to use a local venv for auxiliary scripts later.
