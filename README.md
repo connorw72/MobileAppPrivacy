@@ -1,3 +1,6 @@
-run npm install
-npm run dev 
+First run:  
+`npm install`  
+Second run:  
+`npm run dev`    
+  
 to see local thingy
