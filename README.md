@@ -1,2 +1,3 @@
-# MobileAppPrivacy
-Assigns mobile apps privacy scores
+run npm install
+npm run dev 
+to see local thingy

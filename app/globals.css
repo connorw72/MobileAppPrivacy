@@ -1,0 +1,120 @@
+html {
+  background: #ffffff;
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #cccccc;
+}
+
+.searchForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.textInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #999999;
+  border-radius: 0;
+}
+
+.button {
+  padding: 8px 12px;
+  border: 1px solid #999999;
+  border-radius: 0;
+  background: #eeeeee;
+  color: #000000;
+}
+
+.button:disabled {
+  color: #666666;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #999999;
+  background: #f7f7f7;
+  color: #000000;
+  text-align: left;
+}
+
+.resultButton.selected {
+  background: #e5e5e5;
+}
+
+.icon {
+  flex-shrink: 0;
+  border-radius: 0;
+}
+
+.resultText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.message {
+  margin: 8px 0 0;
+  padding: 8px;
+  border: 1px solid #cccccc;
+  background: #fafafa;
+}
+
+.message.error {
+  border-color: #cc9999;
+  background: #fff3f3;
+}
+
+.scoreBox {
+  padding: 8px;
+  border: 1px solid #999999;
+  background: #f7f7f7;
+}
+
+.scoreNumber {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+@media (max-width: 640px) {
+  .searchForm {
+    flex-direction: column;
+  }
+}
