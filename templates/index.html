@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}AppPrivacy Score – Search{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-md-9">
+
+    <div class="text-center mb-5 mt-3">
+      <h1 class="display-5 fw-bold">🔒 AppPrivacy Score</h1>
+      <p class="lead text-muted">
+        Discover how much personal data a mobile app collects. Search for any
+        iOS app and we'll assign it an objective privacy score.
+      </p>
+    </div>
+
+    <!-- Search form -->
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+      <div class="input-group input-group-lg">
+        <input id="search-input"
+               type="text"
+               class="form-control rounded-start-3"
+               placeholder="e.g. Instagram, TikTok, Spotify…"
+               autocomplete="off"
+               aria-label="App name">
+        <button id="search-btn" class="btn btn-primary px-4 rounded-end-3" type="button">
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Results list -->
+    <div id="results-container"></div>
+
+    <!-- How it works -->
+    <div class="mt-5">
+      <h2 class="h5 fw-semibold mb-3">How it works</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card border-0 bg-light rounded-4 h-100 p-3 text-center">
+            <div class="fs-2 mb-2">🔍</div>
+            <strong>1. Search</strong>
+            <p class="small text-muted mb-0">Type an app name and select it from the iTunes results.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 bg-light rounded-4 h-100 p-3 text-center">
+            <div class="fs-2 mb-2">🕵️</div>
+            <strong>2. Analyse</strong>
+            <p class="small text-muted mb-0">We fetch the App Store privacy labels for that app.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 bg-light rounded-4 h-100 p-3 text-center">
+            <div class="fs-2 mb-2">📊</div>
+            <strong>3. Score</strong>
+            <p class="small text-muted mb-0">A weighted algorithm converts data collection into a 0–100 privacy score.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const searchInput = document.getElementById('search-input');
+  const searchBtn   = document.getElementById('search-btn');
+  const container   = document.getElementById('results-container');
+
+  let debounceTimer = null;
+
+  function renderResults(apps) {
+    if (!apps.length) {
+      container.innerHTML = '<p class="text-muted text-center">No apps found.</p>';
+      return;
+    }
+    const items = apps.map(app => `
+      <a href="/score/${app.id}" class="text-decoration-none">
+        <div class="card border-0 shadow-sm rounded-4 mb-3 p-3 result-card d-flex flex-row align-items-center gap-3">
+          <img src="${app.icon || ''}" alt="${app.name}" width="60" height="60"
+               class="rounded-3 flex-shrink-0" onerror="this.style.display='none'">
+          <div class="overflow-hidden">
+            <div class="fw-semibold text-dark text-truncate">${app.name}</div>
+            <div class="small text-muted text-truncate">${app.developer} &middot; ${app.category}</div>
+            <div class="small text-secondary text-truncate">${app.description || ''}</div>
+          </div>
+          <span class="ms-auto text-primary fs-5">›</span>
+        </div>
+      </a>`).join('');
+    container.innerHTML = `<div>${items}</div>`;
+  }
+
+  function renderError(msg) {
+    container.innerHTML = `<div class="alert alert-danger">${msg}</div>`;
+  }
+
+  async function doSearch(query) {
+    if (!query.trim()) { container.innerHTML = ''; return; }
+    container.innerHTML = '<div class="text-center text-muted py-3">Searching…</div>';
+    try {
+      const res  = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (!res.ok) { renderError(data.error || 'Search failed.'); return; }
+      renderResults(data.results || []);
+    } catch (e) {
+      renderError('Could not reach the search service.');
+    }
+  }
+
+  searchBtn.addEventListener('click', () => doSearch(searchInput.value));
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch(searchInput.value);
+  });
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => doSearch(searchInput.value), 400);
+  });
+</script>
+{% endblock %}
