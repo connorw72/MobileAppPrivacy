@@ -19,6 +19,7 @@ export function SearchApp() {
     startSearch(async () => {
       setError(null);
       setAnalysis(null);
+      setSelectedId(null);
 
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -58,6 +59,15 @@ export function SearchApp() {
     });
   }
 
+  const scoreColor =
+    analysis === null
+      ? "#888"
+      : analysis.score >= 80
+        ? "#22c55e"
+        : analysis.score >= 50
+          ? "#f59e0b"
+          : "#ef4444";
+
   return (
     <main className="page">
       <section className="section">
@@ -80,50 +90,84 @@ export function SearchApp() {
 
       {error ? <p className="message error">{error}</p> : null}
 
-      <section className="section">
-        <h2>Results</h2>
+      {/* Two-column layout once results exist */}
+      <div className={`contentLayout ${results.length > 0 ? "hasResults" : ""}`}>
 
-        <div className="results">
-          {results.map((result) => (
-            <button
-              className={`resultButton ${selectedId === result.trackId ? "selected" : ""}`}
-              key={result.trackId}
-              onClick={() => handleAnalyze(result.trackId)}
-              type="button"
-            >
-              <Image
-                alt={`${result.trackName} icon`}
-                className="icon"
-                height={60}
-                src={result.artworkUrl100}
-                width={60}
-              />
-              <span className="resultText">
-                <strong>{result.trackName}</strong>
-                <span>{result.sellerName}</span>
-              </span>
-            </button>
-          ))}
-
-          {!searchPending && results.length === 0 ? (
-            <p className="message">Search for an app to see results.</p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="section">
-        <h2>Privacy score</h2>
-        <p>{analysisPending ? "Analyzing..." : "Ready"}</p>
-
-        {analysis ? (
-          <div className="scoreBox">
-            <p className="scoreNumber">{analysis.score}/10</p>
-            <p>{analysis.summary}</p>
-          </div>
-        ) : (
-          <p className="message">Select an app to view its score.</p>
+        {/* Left column: results list */}
+        {results.length > 0 && (
+          <section className="section resultsColumn">
+            <h2>Results</h2>
+            <div className="results">
+              {results.map((result) => (
+                <button
+                  className={`resultButton ${selectedId === result.trackId ? "selected" : ""}`}
+                  key={result.trackId}
+                  onClick={() => handleAnalyze(result.trackId)}
+                  type="button"
+                >
+                  <Image
+                    alt={`${result.trackName} icon`}
+                    className="icon"
+                    height={60}
+                    src={result.artworkUrl100}
+                    width={60}
+                  />
+                  <span className="resultText">
+                    <strong>{result.trackName}</strong>
+                    <span>{result.sellerName}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
         )}
-      </section>
+
+        {/* Right column: score panel — only shown after an app is clicked */}
+        {selectedId !== null && (
+          <section className="section scoreColumn">
+            <h2>Privacy Score</h2>
+
+            {analysisPending ? (
+              <p className="message">Analyzing...</p>
+            ) : analysis ? (
+              <div className="scorePanel">
+                {/* Score ring / number */}
+                <div className="scoreRing" style={{ "--score-color": scoreColor } as React.CSSProperties}>
+                  <span className="scoreNumber" style={{ color: scoreColor }}>
+                    {analysis.score}
+                  </span>
+                  <span className="scoreOutOf">/100</span>
+                </div>
+
+                <p className="scoreSummary">{analysis.summary}</p>
+
+                {/* Reasons list */}
+                {analysis.reasons.length > 0 && (
+                  <div className="reasonsList">
+                    <h3>Why this score?</h3>
+                    <ul>
+                      {analysis.reasons.map((reason, index) => (
+                        <li key={index}>{reason}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <p className="sourceNote">{analysis.sourceNote}</p>
+              </div>
+            ) : (
+              <p className="message">Select an app to view its score.</p>
+            )}
+          </section>
+        )}
+      </div>
+
+      {/* Empty state before any search */}
+      {results.length === 0 && !searchPending && (
+        <section className="section">
+          <p className="message">Search for an app to see results.</p>
+        </section>
+      )}
     </main>
   );
 }

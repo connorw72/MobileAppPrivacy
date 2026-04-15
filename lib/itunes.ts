@@ -23,6 +23,7 @@ export async function searchApps(query: string): Promise<SearchResult[]> {
   }
 
   const data = (await response.json()) as ItunesSearchResponse;
+  console.log(data);
   return data.results ?? [];
 }
 
